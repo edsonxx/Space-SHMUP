@@ -16,6 +16,9 @@ public class Hero : MonoBehaviour
     [Header("Set Dynamically")]
     private GameObject lastTriggerGo = null;
 
+    public delegate void WeaponFireDelegate();
+    public WeaponFireDelegate fireDelegate;
+
     [SerializeField]
     private float _shieldLevel = 1;
 
@@ -25,11 +28,10 @@ public class Hero : MonoBehaviour
         {
             S = this; // Set the Singleton // a
         }
-        else
-        {
-            Debug.LogError("Hero.,() - Attempted to assign second Hero.S!");
-        }
+
+        // fireDelegate += TempFire;
     }
+       
     void Update()
     {
         // Pull in information from the Input class
@@ -42,17 +44,11 @@ public class Hero : MonoBehaviour
         transform.position = pos;
         // Rotate the ship to make it feel more dynamic // c
         transform.rotation = Quaternion.Euler(yAxis * pitchMult, xAxis * rollMult, 0);
-        if (Input.GetKeyDown(KeyCode.Space))
-        { 
-               TempFire();
-        }
-    }
-    void TempFire()
-    { 
-        GameObject projGO = Instantiate<GameObject>(projectilePrefab);
-        projGO.transform.position = transform.position;
-        Rigidbody rigidB = projGO.GetComponent<Rigidbody>();
-        rigidB.velocity = Vector3.up * projectileSpeed;
+
+        if (Input.GetAxis("Jump") == 1 && fireDelegate != null)
+        {
+            fireDelegate();
+        }
     }
 
     void OnTriggerEnter(Collider other)
